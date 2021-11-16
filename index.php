@@ -1,20 +1,17 @@
 <?php
 
     //123 $2y$10$YRfiA.HsgAAl.WxiSqOv.OpfoBUKze.zuw7J4oS2.hFtxO6/P8k0.
-    ob_start();
+    //ob_start();
     $error = "";
     $success = "";
     session_start();
+    include('connection.php');
+    if(mysqli_connect_error()) {
+    //checking if there is an error
+        die("Database Connection failed!");
+        
+    }
     if($_POST) {
-        
-        include('connection.php');
-        
-        //connecting to mysql database
-        if(mysqli_connect_error()) {
-        //checking if there is an error
-            die("Database Connection failed!");
-            
-        } else {
         //if connection to database is successful  
             $email = mysqli_real_escape_string($link,$_POST['email']);
             if($_POST['type'] == 'Admin') {
@@ -57,8 +54,6 @@
                 echo mysqli_error($link);
                 //echo "connection unsuccessful";
             }
-            
-        }
         
     }
 

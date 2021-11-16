@@ -1,91 +1,58 @@
 <?php
-
-    $i = 0;
-    session_start();
-    if(!array_key_exists('currentId',$_SESSION)) {
+session_start();
+if(!array_key_exists('currentId',$_SESSION)) {
+    header("Location: 1-loginpage.php");
+}
+$row = "";
+include('../connection.php');
+$link = mysqli_connect($host,$username,$pass,$db);
+//Populting appraiser dropbox
+if(mysqli_connect_error()) {
+    die("Connection error");
+}
+$query = "SELECT `name` FROM `msa-admins` WHERE `id` = '".$_SESSION['currentId']."'";
+$result = mysqli_query($link,$query);
+$row = mysqli_fetch_array($result);
+$admin = $row['name'];
+$query = "SELECT `name` FROM `msa-inspectors`";
+$result = mysqli_query($link,$query);
+$inspectorArray = "";
+while($row = mysqli_fetch_array($result)) {
+    $inspectorArray .="<option value='".$row['name']."'>".$row['name']."</option>";
+} 
+if($_POST) {
+    $part_number = mysqli_real_escape_string($link,$_POST['part-number']);
+    $_SESSION['part-number'] = $part_number;
+    $part_name = mysqli_real_escape_string($link,$_POST['part-name']);
+    $instrument_number = mysqli_real_escape_string($link,$_POST['instrument-number']);
+    $instrument_name = mysqli_real_escape_string($link,$_POST['instrument-name']);
+    $characteristic = mysqli_real_escape_string($link,$_POST['characteristic']);
+    $gauge_type = mysqli_real_escape_string($link,$_POST['gauge-type']);
+    $specification = $_POST['specifications'];
+    $upper = $_POST['upper'];
+    $lower = $_POST['lower'];
+    $tol = $upper - $lower;
+    $numappraisers = 3;
+    $appraisersarray = array();
+    $_SESSION['num-app'] = 3;
+    $_SESSION['num-trials'] = 3;
+    $_SESSION['num-parts'] = 10;
+    $appraisers = "";
+    $_SESSION['input-app-array'] = "";
+    for($i=1;$i<=$_SESSION['num-app'];$i++) {
         
-        header("Location: 1-loginpage.php");
+        $_SESSION['input-app-array'] .= '<select class="form-control" type="text" placeholder="Appraiser '.$i.' : " id="id-app-'.$i.'" name="app-'.$i.'" required><option value="" disabled selected>Appraisal '.$i.'</option>'.$inspectorArray.'</select>';
         
     }
-    $row = "";
-    include('connection.php');
-    $link = mysqli_connect($host,$username,$pass,$db);
-    //Populting appraiser dropbox
-    if(mysqli_connect_error()) {
-        die("Connection error");
-    } $query = "SELECT `name` FROM `msa-admins` WHERE `id` = '".$_SESSION['currentId']."'";
-    $result = mysqli_query($link,$query);
-    $row = mysqli_fetch_array($result);
-    $admin = $row['name'];
-    $query = "SELECT `name` FROM `msa-inspectors`";
-    $result = mysqli_query($link,$query);
-    $inspectorArray = "";
-    while($row = mysqli_fetch_array($result)) {
-        
-        $inspectorArray .="<option value='".$row['name']."'>".$row['name']."</option>";
-        
-    } 
-    //insertion function
-    if($_POST) {
-        
-        $part_number = mysqli_real_escape_string($link,$_POST['part-number']);
-        $_SESSION['part-number'] = $part_number;
-        $part_name = mysqli_real_escape_string($link,$_POST['part-name']);
-        $instrument_number = mysqli_real_escape_string($link,$_POST['instrument-number']);
-        $instrument_name = mysqli_real_escape_string($link,$_POST['instrument-name']);
-        $characteristic = mysqli_real_escape_string($link,$_POST['characteristic']);
-        $gauge_type = mysqli_real_escape_string($link,$_POST['gauge-type']);
-        $specification = $_POST['specifications'];
-        $upper = $_POST['upper'];
-        $lower = $_POST['lower'];
-        $tol = $upper - $lower;
-        $numappraisers = $_POST['num-app'];
-        $appraisersarray = array();
-        $_SESSION['num-app'] = $_POST['num-app'];
-        $_SESSION['num-trials'] = $_POST['num-trials'];
-        $_SESSION['num-parts'] = $_POST['num-parts'];
-        $appraisers = "";
-        /*for($i=1;$i<=$numappraisers;$i++) {
-         
-            array_push($appraisersarray,mysqli_real_escape_string($link,$_POST['app-'.$i.'']));
-            
-        }
-        $appraisers = "";
-        print_r($appraisersarray);
-        for($i=0;$i<$numappraisers;$i++) {
-            
-            $appraisers .= $appraisersarray[$i];
-            if($i != $numappraisers) {
-                
-                $appraisers .= " , ";
-                
-            }
-            
-            
-        } */ 
-        $_SESSION['input-app-array'] = "";
-        for($i=1;$i<=$_SESSION['num-app'];$i++) {
-            
-            $_SESSION['input-app-array'] .= '<select class="form-control" type="text" placeholder="Appraiser '.$i.' : " id="id-app-'.$i.'" name="app-'.$i.'" required><option value="" disabled selected>Appraisal '.$i.'</option>'.$inspectorArray.'</select>';
-            
-        }
-        $performer = mysqli_real_escape_string($link,$admin);
-        
-        $date = $_POST['date-performed'];
-        
-        $query = "INSERT INTO `msa-gauge-r&r-study` (`part-number`,`part-name`,`instrument-number`,`instrument-name`,`characteristic`,`gauge-type`,`specification`,`upper`,`lower`,`trials`,`parts`,`numappraisers`,`appraisers`,`performer`,`date`) VALUES ('".$part_number."','".$part_name."','".$instrument_number."','".$instrument_name."','".$characteristic."','".$gauge_type."','".$specification."','".$upper."','".$lower."','".$_SESSION['num-trials']."','".$_SESSION['num-parts']."','".$numappraisers."','".$appraisers."','".$performer."','".$date."')";
-        $_SESSION['tol'] = $tol;
-        $SESSION['part-number'] = $part_number;
-        mysqli_query($link,$query);
-        header("Location: 4-procedure-1-2(app).php");
-       //echo mysqli_error($link);
-        /**/ 
-        //
-    }
-    
-    
-    
+    $performer = mysqli_real_escape_string($link,$admin);
+    $date = $_POST['date-performed'];
+    $query = "INSERT INTO `attribute-gauge-r&r-study` (`part-number`,`part-name`,`instrument-number`,`instrument-name`,`characteristic`,`gauge-type`,`specification`,`upper`,`lower`,`trials`,`parts`,`numappraisers`,`appraisers`,`performer`,`date`) VALUES ('".$part_number."','".$part_name."','".$instrument_number."','".$instrument_name."','".$characteristic."','".$gauge_type."','".$specification."','".$upper."','".$lower."','".$_SESSION['num-trials']."','".$_SESSION['num-parts']."','".$numappraisers."','".$appraisers."','".$performer."','".$date."')";
+    $_SESSION['tol'] = $tol;
+    $SESSION['part-number'] = $part_number;
+    mysqli_query($link,$query);
+    header("Location: procedure-2.php");
 
+}
 ?>
 
 <html>
@@ -94,13 +61,11 @@
     
         <title>Gauge R and R Study</title>
         
-        <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
         
-        <link rel="stylesheet" href="style.css">
+        <link rel="stylesheet" href="../style.css">
         
-        <script type="text/javascript" src="bootstrap/js/bootstrap.min.js"></script>
-        
-        <script type="text/javascript" src="jquery.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-Piv4xVNRyMGpqkS2by6br4gNJ7DXjqk09RmUpJ8jgGtD7zP9yug3goQfGII0yAns" crossorigin="anonymous"></script>
         
         <style type="text/css">
         
@@ -176,14 +141,14 @@
             }
         
         </style>
-    
+    x
     </head>
     
     <body>
     
         <div class="container" id="main-container">
         
-            <h1>Gauge R&amp;R Study</h1> 
+            <h1>Attribute R&amp;R Study</h1> 
             
             <div id="jquery-errors" class="alert alert-danger" role="alert">
             
@@ -229,11 +194,10 @@
                                         
                                         ?>
                                         
-                                    </select>-->
-                                    
-                                    <input class="form-control" type="number" placeholder="Number Of Appraisers" id="id-num-app" name="num-app" required>
-                                    
-                                    <small id="emailHelp" class="form-text text-muted">Only 3 Appraisers Allowed</small>
+                                    </select>-->                                    
+                                    <div class="alert alert-dark" role="alert">
+                                      3 Appriasers
+                                    </div>
                     
                                 </div>
                             
@@ -275,10 +239,10 @@
                                         ?>
                                         
                                     </select>-->
-                                    
-                                    <input class="form-control" type="number" placeholder="Number Of Trials" id="id-num-trials" name="num-trials" required>
-                                    
-                                    <small id="emailHelp" class="form-text text-muted">Can only select 3</small>
+                                                                       
+                                <div class="alert alert-dark" role="alert">
+                                     3 Trials
+                                </div>
                     
                                 </div>
                             
@@ -321,12 +285,10 @@
                                         
                                     </select>-->
                                     
-                                    <input class="form-control" type="number" placeholder="Number Of Parts" id="id-num-parts" name="num-parts" required>
-                                    
-                                    <small id="emailHelp" class="form-text text-muted">Can Only select 10</small>
-                    
-                                </div>
-                            
+                                    <div class="alert alert-dark" role="alert">
+                                     10 Parts
+                                    </div>
+
                             </td>
                             <th scope="row"> </th>
                         </tr>
@@ -489,7 +451,7 @@
             
             Date.prototype.toDateInputValue = (function() {
                 
-                var local = new Date(this);
+                var local = new Date(this); 
                 local.setMinutes(this.getMinutes() - this.getTimezoneOffset());
                 return local.toJSON().slice(0,10);
                 

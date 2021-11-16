@@ -6,10 +6,10 @@
         
     }if(!array_key_exists('num-app',$_SESSION)) {
         
-        header("Location: 4-procedure-1.php");
+        header("Location: procedure-1.php");
         
     }$row = "";
-    include('connection.php');
+    include('../connection.php');
     //Popultaing appraiser dropbox
     if(mysqli_connect_error()) {
         
@@ -49,7 +49,7 @@
             }
             
             
-        } $query = "UPDATE `msa-gauge-r&r-study` SET `appraisers` = '".$appraisers."' WHERE `part-number` = '".$_SESSION['part-number']."'";;
+        } $query = "UPDATE `attribute-gauge-r&r-study` SET `appraisers` = '".$appraisers."' WHERE `part-number` = '".$_SESSION['part-number']."'";;
         //mysqli_query($link,$query);
         if(mysqli_query($link,$query)) {
             
@@ -73,8 +73,8 @@
             
             $_SESSION['tablename'] = $_SESSION['part-number'];
             echo "header";
-            echo "<script>window.location.href='4-procedure-2.php';</script>";
-            header("Location: 4-procedure-2.php");
+            echo "<script>window.location.href='procedure-3.php';</script>";
+            header("Location: procedure-3.php");
                 
         } else {
             
@@ -95,13 +95,13 @@
     
         <title>Appraisers</title>
     
-        <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
+        <link rel="stylesheet" href="../bootstrap/css/bootstrap.min.css">
         
-        <link rel="stylesheet" href="style.css">
+        <link rel="stylesheet" href="../style.css">
         
-        <script type="text/javascript" src="jquery.min.js"></script>
+        <script type="text/javascript" src="../jquery.min.js"></script>
         
-        <script type="text/javascript" src="bootstrap/js/bootstrap.min.js"></script>
+        <script type="text/javascript" src="../bootstrap/js/bootstrap.min.js"></script>
         
         
         
@@ -159,9 +159,7 @@
            
             <form method="post">
                 <?php
-
                     echo $_SESSION['input-app-array'];
-
                 ?>
                 
                 <button type="submit" class="btn btn-primary" name="app-form-submit" id="id-app-form-submit">Submit</button>
@@ -216,10 +214,3 @@
 
 
 </html>
-
-
-<?php
-
-
-
-?>
