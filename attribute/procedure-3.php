@@ -1,12 +1,12 @@
 <?php
 session_start();
-// if(!array_key_exists('currentId',$_SESSION)) {
-//     header("Location: 1-loginpage.php");
-// }if(!array_key_exists('num-app',$_SESSION)) {
-//     header("Location: procedure-1.php");
-// } if(!array_key_exists('procedure-start',$_SESSION)) {
-//     header("Location: procedure-1.php");
-// }
+if(!array_key_exists('currentId',$_SESSION)) {
+    header("Location: 1-loginpage.php");
+}if(!array_key_exists('num-app',$_SESSION)) {
+    header("Location: procedure-1.php");
+} if(!array_key_exists('procedure-start',$_SESSION)) {
+    header("Location: procedure-1.php");
+}
 include('../connection.php');
 if(mysqli_connect_error()) {
     die("Connection error");
@@ -17,6 +17,7 @@ if(isset($_POST['submit-button'])) {
         $vals[$i] = $_POST['tv'.$i];
     }
     $_SESSION['vals'] = $vals;
+    $SESSION['id'] = $id;
     echo "header";
     echo "<script>window.location.href='procedure-4.php';</script>";
     header("Location: procedure-4.php");

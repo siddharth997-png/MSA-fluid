@@ -1,20 +1,16 @@
 <?php
     session_start();
     if(!array_key_exists('currentId',$_SESSION)) {
-        
         header("Location: 1-loginpage.php");
-        
     }if(!array_key_exists('num-app',$_SESSION)) {
-        
         header("Location: procedure-1.php");
-        
     }$row = "";
     include('../connection.php');
     //Popultaing appraiser dropbox
     if(mysqli_connect_error()) {
-        
         die("Connection error");
     } 
+    echo 'id'.$_SESSION['id'];
     if($_POST) {
         
         $appraisersarray = array();
@@ -72,6 +68,7 @@
             $_SESSION['procedure-start'] = "true";
             
             $_SESSION['tablename'] = $_SESSION['part-number'];
+            $SESSION['id'] = $id;
             echo "header";
             echo "<script>window.location.href='procedure-3.php';</script>";
             header("Location: procedure-3.php");

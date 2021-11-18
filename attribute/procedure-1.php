@@ -44,14 +44,18 @@ if($_POST) {
         $_SESSION['input-app-array'] .= '<select class="form-control" type="text" placeholder="Appraiser '.$i.' : " id="id-app-'.$i.'" name="app-'.$i.'" required><option value="" disabled selected>Appraisal '.$i.'</option>'.$inspectorArray.'</select>';
         
     }
+    $id = uniqid();
     $performer = mysqli_real_escape_string($link,$admin);
     $date = $_POST['date-performed'];
-    $query = "INSERT INTO `attribute-gauge-r&r-study` (`part-number`,`part-name`,`instrument-number`,`instrument-name`,`characteristic`,`gauge-type`,`specification`,`upper`,`lower`,`trials`,`parts`,`numappraisers`,`appraisers`,`performer`,`date`) VALUES ('".$part_number."','".$part_name."','".$instrument_number."','".$instrument_name."','".$characteristic."','".$gauge_type."','".$specification."','".$upper."','".$lower."','".$_SESSION['num-trials']."','".$_SESSION['num-parts']."','".$numappraisers."','".$appraisers."','".$performer."','".$date."')";
+    $query = "INSERT INTO `attribute-gauge-r&r-study` (`idd`,`part-number`,`part-name`,`instrument-number`,`instrument-name`,`characteristic`,`gauge-type`,`specification`,`upper`,`lower`,`trials`,`parts`,`numappraisers`,`appraisers`,`performer`,`date`) VALUES ('".$id."','".$part_number."','".$part_name."','".$instrument_number."','".$instrument_name."','".$characteristic."','".$gauge_type."','".$specification."','".$upper."','".$lower."','".$_SESSION['num-trials']."','".$_SESSION['num-parts']."','".$numappraisers."','".$appraisers."','".$performer."','".$date."')";
     $_SESSION['tol'] = $tol;
-    $SESSION['part-number'] = $part_number;
-    mysqli_query($link,$query);
-    header("Location: procedure-2.php");
-
+    $_SESSION['part-number'] = $part_number;
+    $_SESSION['id'] = $id;
+    if(mysqli_query($link,$query)) {
+        header("Location: procedure-2.php");
+    } else {
+        echo mysqli_error($link);
+    }
 }
 ?>
 

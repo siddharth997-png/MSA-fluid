@@ -1,17 +1,18 @@
 <?php
 session_start();
-// if(!array_key_exists('currentId',$_SESSION)) {
-// //if user has not logged in
-//     header("Location: 1-loginpage.php");
-// } if(!array_key_exists('num-app',$_SESSION)) {
-//     header("Location: procedure-1.php");
-// } if(!array_key_exists('procedure-start',$_SESSION)) {
-//     header("Location: procedure-1.php");
-// }
+if(!array_key_exists('currentId',$_SESSION)) {
+//if user has not logged in
+    header("Location: 1-loginpage.php");
+} if(!array_key_exists('num-app',$_SESSION)) {
+    header("Location: procedure-1.php");
+} if(!array_key_exists('procedure-start',$_SESSION)) {
+    header("Location: procedure-1.php");
+}
 
-$numApp = 1;
-$numTrials = 1;
+$numApp = 3;
+$numTrials = 3;
 $numSamples = 10;
+$result = '';
 
 $table = '<table class="table table-bordered table-hover"><thead><tr><th class="wider-column">Trial no.</th><th class="wider-column">Sample no.</th>';
 for($i=1;$i<=$numSamples;$i++) {
@@ -45,7 +46,7 @@ for($i=1;$i<=$numTrials;$i++) {
 
 $true_values = $_SESSION['vals'];
 print_r($true_values);
-
+echo 'idddd:'.$_SESSION['id'];
 if(isset($_POST['submit-button'])) {
     echo '<br>';
     print_r($_POST);
@@ -57,31 +58,86 @@ if(isset($_POST['submit-button'])) {
     $correctness = array();
     $false_accepts = array();
     $false_rejects = array();
-
     for($i=1;$i<=$numTrials;$i++) {
         for($j=1;$j<=$numApp;$j++) {
             for($k=1;$k<=$numSamples;$k++) {
                 if (!array_key_exists(''.$i.$j,$correctness)) {
                     $correctness[''.$i.$j] = 0;
-                } if(!array_key_exists(''.$i.$j,$false_rejects)) {
-                    $false_rejects[''.$i.$j] = 0;
-                } if(!array_key_exists(''.$i.$j,$false_accepts)) {
-                    $false_accepts[''.$i.$j] = 0;
-                }
+                } if(!array_key_exists($i.$j,$false_rejects)) {
+                    $false_rejects[$i.$j] = 0;
+                } if(!array_key_exists($i.$j,$false_accepts)) {
+                    $false_accepts[$i.$j] = 0;
+                } if (!array_key_exists($j,$correctness)) {
+                    $correctness[$j] = 0;
+                } if(!array_key_exists($j,$false_rejects)) {
+                    $false_rejects[$j] = 0;
+                } if(!array_key_exists($i.$j,$false_accepts)) {
+                    $false_accepts[$j] = 0;
+                } 
                 if($true_values[$k] === $_POST["tva".$j.$i.$k]) {
                     $correctness[''.$i.$j] += 1;
-                } else if($true_values[$k] === 1 && $_POST["tva".$j.$i.$k] === 0) {
-                    $false_rejects[''.$i.$j] += 1;
-                } else if($true_values[$k] === 0 && $_POST["tva".$j.$i.$k] === 1) {
-                    $false_accepts[''.$i.$j] += 1; 
+                    $correctness[$j] += 1;
+                } else if($true_values[$k] === '1' && $_POST["tva".$j.$i.$k] === '0') {
+                    $false_rejects[$i.$j] += 1;
+                    $false_rejects[$j] += 1;
+                } else if($true_values[$k] === '0' && $_POST["tva".$j.$i.$k] === '1') {
+                    $false_accepts[$i.$j] += 1; 
+                    $false_accepts[$j] += 1; 
                 }
             }
-            $correctness[$i.$j] /= $numSamples;
+            //$correctness[$i.$j] /= $numSamples;
         }
     }
-    echo '<br>cor : ';
-    print_r($correctness);
-    echo '<br>';
+    $effectiveness = array();
+    for($j=1;$j<=$numApp;$j++) {
+        for($i=1;$i<=$numTrials;$i++) {
+            if(!array_key_exists(''.$j,$effectiveness)) {
+                $effectiveness[''.$j] = 0;
+            }
+            $effectiveness[''.$j] += $correctness[$i.$j];
+        }
+        $effectiveness[''.$j] /= $numTrials;
+        //echo "effectiveness of app ".$j." is ".$effectiveness[$j]."<br> false accepts : ".$false_accepts[$j]."<br>false rejects : ".$false_rejects[$j]."<br><br>" ;
+    }
+    // echo '<br>cor : ';
+    // print_r($correctness);
+    // echo '<br>';
+    // print_r($false_accepts);
+
+    $result = '<table class="table table-bordered table-hover"><thead><tr><th class="wider-column">Trial no.</th><th class="wider-column">Appraiser</th><th>Correct Hits</th><th>False Rejects</th><th>False Accepts</th><th>Bias</th><th>Effectiveness</th></tr></thead>';
+
+    for($i=1;$i<=$numTrials;$i++) {
+        $result .= '<tr><th rowspan="'.$numApp.'">Trial '.$i.'</th>';
+        for($j=1;$j<=$numApp;$j++) {
+            $result .= '<th>Appraiser '.$j.'</th>';
+
+            $result .= '<td>'.$correctness[$i.$j].'/'.$numSamples.'</td>';
+
+            $result .= '<td>'.$false_rejects[$i.$j].'/'.$numSamples.'</td>';
+
+            $result .= '<td>'.$false_accepts[$i.$j].'/'.$numSamples.'</td>';
+
+            $result .= '<td>'.
+            $false_rejects[$i.$j]/$false_accepts[$i.$j]
+            .'</td>';
+
+            $result .= '<td>'.(($correctness[$i.$j]/$numSamples)*100).'%</td>';
+
+            if($j != $numApp) {
+                $result .= '</tr><tr>';
+            } else {
+                $result .= '</tr>';
+            }
+        }
+    }
+    
+    $result .= "</tbody></table>";
+   
+    $query = "UPDATE `attribute-gauge-r&r-study` SET `result` = '".$result."' ";
+    if(mysqli_query($link,$query)) {
+        header("Location:procedure-5.php?id=".$_SESSION['id']);
+    }
+    echo $result;
 }
     
 
@@ -148,6 +204,7 @@ if(isset($_POST['submit-button'])) {
     <body>
         <div class="container-fluid">
             <h1>Attribute R&amp;R Study</h1>
+            if($result)
             <form method="POST" id="input-table" autocomplete="on">
                 <?php
                     echo $table;

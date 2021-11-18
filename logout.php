@@ -3,7 +3,7 @@
 $_SESSION['currentId'] = "";
 session_destroy();
 echo "logout";
-header("Location: ./");
-echo "<script>window.location.href='./';</script>";
+header("Location: ./index.php");
+echo "<script>window.location.href='index.php';</script>";
 
 ?>

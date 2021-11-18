@@ -211,10 +211,11 @@
             
             <a href="" id="currentUser">About You</a>
           
-            <a href="4-procedure-1.php">Gauge R&amp;R Study</a>
-            <a href="./attribute/procedure-1.php">Attribute R&amp;R Study</a>
+            <a href="4-procedure-1.php">Gauge Procedure</a>
+            <a href="./attribute/procedure-1.php">Attribute Procedure</a>
             
-            <a href="5-display-1.php">Display Conclusions</a>
+            <a href="5-display-1.php">Display Gauge Conclusions</a>
+            <a href="./attribute/display-1.php">Display Attribute Conclusions</a>
             
         </div>
         
